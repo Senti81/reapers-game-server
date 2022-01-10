@@ -12,11 +12,45 @@ npm run dev
 
 # Routes
 
-## Start new Game
-### POST /scores/start
+## ADMIN
+### Register Player
+```
+POST localhost:3000/users/
+```
+Example:
+```
+{
+    "name": "Alice",
+    "email": "alice@game.de",
+    "password": "maus1234"
+}
+```
+### Start new Game
+```
+POST localhost:3000/scores/start
+```
+### Show all tasks
+```
+GET localhost:3000/tasks
+```
 
-## Show points
-### GET /scores/
+## USER
+### Submit solution
+```
+POST localhost:3000/tasks/{day}
+```
+Example:
+```
+POST localhost:3000/tasks/1
+{
+    "player": "Alice",
+    "solution": "A"
+}
+```
+### Show points
+```
+GET localhost:3000/scores/
+```
 
 # Misc
 

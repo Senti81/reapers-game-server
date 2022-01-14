@@ -1,5 +1,4 @@
 const express = require('express')
-const { accepts } = require('express/lib/request')
 const Score = require('../model/Score')
 const Player = require('../model/User')
 const router = express.Router()
@@ -11,13 +10,13 @@ router.post('/scores/start', async (req, res) => {
   let scores = []
 
   players.forEach(player => {
-    scores.push({ name: player.name })
+    scores.push({ username: player.username })
   })
 
   Score.insertMany(scores)
 
   try {
-    res.status(201).send({"message": "New game created"})
+    res.status(201).send(scores)
   } catch (error) {
     res.status(400).send(error)
   }
@@ -26,11 +25,12 @@ router.post('/scores/start', async (req, res) => {
 router.get('/scores', async (req, res) => {
   try {
     const scores = await Score.find()
+
     let result = []
     scores.forEach(element => {
       result.push({
-        name: element.name,
-        points: element.points.reduce((a, c) => a + c)
+        username: element.username,
+        points: element.points.length === 0 ? 0 : element.points.reduce((a, c) => a + c)
       })
     })
 

@@ -6,9 +6,9 @@ const auth = require('../middleware/auth')
 // Create new user
 router.post('/users', async (req, res) => {
   
-  // Check if email already exists
-  if (await User.findOne({ email: req.body.email })) {
-    return res.status(400).send({error: 'Email already in use'})
+  // Check if Username already exists
+  if (await User.findOne({ username: req.body.username })) {
+    return res.status(400).send({error: 'Username already in use'})
   }
   const user = new User(req.body)
   try {
@@ -20,14 +20,23 @@ router.post('/users', async (req, res) => {
   }
 })
 
+router.get('/users', auth, async (req, res) => {
+  try {
+    const users = await User.find()
+    res.send(users)    
+  } catch (error) {
+    res.status(400).sendDate(error)
+  }
+})
+
 // Login user
 router.post('/users/login', async (req, res) => {
   try {
-    const user = await User.findByCredentials(req.body.email, req.body.password)
+    const user = await User.findByCredentials(req.body.username, req.body.password)
     const token = await user.generateAuthToken()
     res.send({ user, token })
   } catch (error) {
-    res.status(400).send(error)
+    res.send({ message: 'Incorrect credentials' })
   }
 })
 
@@ -43,8 +52,14 @@ router.post('/users/logout', auth, async (req, res) => {
 })
 
 // Show current user
-router.get('/users/me', auth, async (req, res) => {
-  res.send(req.user)
+router.post('/users/me', async (req, res) => {
+  const user = await User.findOne({ token: req.body.token })
+  try {
+    if (!user) throw new Error('User not found')    
+    res.send(user)
+  } catch (error) {
+    res.status(404).send(error)
+  }
 })
 
 // Change current user

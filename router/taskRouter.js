@@ -17,13 +17,13 @@ router.post('/tasks', async (req, res) => {
 router.post('/tasks/:nr', async (req, res) => {
   const nr = req.params.nr
   const solution = req.body.solution
-  const player = req.body.player
+  const username = req.body.username
   try {
     const task = await Task.findOne({ nr })
-    const score = await Score.findOne({ name : player })
+    const score = await Score.findOne({ username })
 
     if (solution === task.solution) {
-      const points = await calculatePoints(player, nr)     
+      const points = await calculatePoints(username, nr)     
       if (!score) {
         res.sendStatus(404)
         return
@@ -84,12 +84,12 @@ router.delete('/tasks/:id', auth, async (req, res) => {
   }
 })
 
-async function calculatePoints(player, nr) {
+async function calculatePoints(username, nr) {
 
   // TODO Fancy punkte algorithmus (fibonacci ?)
   const points = [21, 13, 8, 5, 3]
   let index = 0
-  const result = await Score.find({ "name": { "$ne": player } })
+  const result = await Score.find({ "username": { "$ne": username } })
   
   result.forEach(element => {
     if (element.points.length == nr) {

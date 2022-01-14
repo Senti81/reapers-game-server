@@ -7,12 +7,11 @@ const Task = require('./Task')
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Name is required'],
     trim: true
   },
-  email: {
+  username: {
     type: String,
-    required: [true, 'Email is required'],
+    required: [true, 'Username is required'],
     trim: true,
     lowercase: true
   },
@@ -28,15 +27,9 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 })
 
-userSchema.virtual('tasks', {
-  ref: 'Task',
-  localField: '_id',
-  foreignField: 'owner'
-})
-
 // Static method
-userSchema.statics.findByCredentials = async (email, password) => {
-  const user = await User.findOne({ email })
+userSchema.statics.findByCredentials = async (username, password) => {
+  const user = await User.findOne({ username })
   
   if (!user) throw new Error('Login failed')  
 
@@ -70,13 +63,6 @@ userSchema.pre('save', async function(next) {
       user.password = await bcrypt.hash(user.password, 8)
   }
   next()  
-})
-
-// Delete user tasks, when user ist removed
-userSchema.pre('remove', async function (next) {
-  const user = this
-  await Task.deleteMany({ owner: user._id })
-  next()
 })
 
 const User = mongoose.model('User', userSchema)

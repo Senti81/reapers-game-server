@@ -1,6 +1,7 @@
 const express = require('express')
 const Score = require('../model/Score')
 const Player = require('../model/User')
+const auth = require('../middleware/auth')
 const router = express.Router()
 
 router.post('/scores/start', async (req, res) => {
@@ -42,17 +43,10 @@ router.get('/scores', async (req, res) => {
   }
 })
 
-router.get('/scores/:day', async (req, res) => {
+router.get('/scores/player/', auth, async (req, res) => {
   try {
-    const scores = await Score.find()
-    let result = []
-    scores.forEach(element => {
-      result.push({
-        name: element.name,
-        points: element.points[req.params.day - 1]
-      })
-    })
-    res.send(result)
+    const score = await Score.findOne({ username: req.query.name})
+    res.send(score)
   } catch (error) {
     res.status(400).send(error)
   }

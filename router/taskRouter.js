@@ -14,10 +14,20 @@ router.post('/tasks', async (req, res) => {
   }
 })
 
-router.post('/tasks/:nr', async (req, res) => {
+router.post('/tasks/:nr', auth, async (req, res) => {
   const nr = req.params.nr
   const solution = req.body.solution
   const username = req.body.username
+  const response = {
+    status: ''
+  }
+
+  if (req.user.username != username) {
+    response.status = 'FORBIDDEN'
+    res.status(403).send(response)
+    return
+  }
+
   try {
     const task = await Task.findOne({ nr })
     const score = await Score.findOne({ username })
@@ -35,25 +45,35 @@ router.post('/tasks/:nr', async (req, res) => {
         }
         score.points.push(points)
         score.save()    
-        res.send(score)
+        response.status = 'CORRECT'
       }
       else {
-        res.send({"message": "Already submitted"})
+        response.status = 'ALREADY_SUBMITTED'
       }
     }
     else {
-      res.send(false)
+      response.status = 'WRONG'
     }
+    res.send(response)
   } catch (error) {
     res.status(400).send(error)
   }
 })
 
-router.get('/tasks/:id', async (req, res) => {
-  const _id = req.params.id
+router.get('/tasks/:nr', auth, async (req, res) => {
+  const response = {
+    status: '',
+    message:''
+  }
+
+  const nr = parseInt(req.params.nr)
   try {
-    const task = await Task.findOne({ _id, owner: req.user._id })
-    if (!task) return res.status(404).send()
+    const task = await Task.findOne({ nr })
+    if (!task) {
+      response.status = 'error'
+      response.message = `No task found with nr ${nr}`
+      return res.status(404).send(response)
+    }
     res.send(task)
 
   } catch (error) {

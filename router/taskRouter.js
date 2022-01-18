@@ -18,9 +18,6 @@ router.post('/tasks/:nr', auth, async (req, res) => {
   const nr = req.params.nr
   const solution = req.body.solution
   const username = req.body.username
-  const response = {
-    status: ''
-  }
 
   if (req.user.username != username) {
     response.status = 'FORBIDDEN'
@@ -32,29 +29,20 @@ router.post('/tasks/:nr', auth, async (req, res) => {
     const task = await Task.findOne({ nr })
     const score = await Score.findOne({ username })
 
-    if (solution === task.solution) {
-      const points = await calculatePoints(username, nr)     
-      if (!score) {
-        res.sendStatus(404)
-        return
-      }
-      if(score.points.length < nr){
-        const diff = (nr - 1) - score.points.length
-        for (let i=0; i<diff; i++) {
-          score.points.push(0)
-        }
-        score.points.push(points)
-        score.save()    
-        response.status = 'CORRECT'
-      }
-      else {
-        response.status = 'ALREADY_SUBMITTED'
-      }
+    const points = await calculatePoints(username, nr, solution === task.solution)
+
+    if (!score) {
+      res.sendStatus(404)
+      return
     }
-    else {
-      response.status = 'WRONG'
+
+    const diff = (nr - 1) - score.points.length
+    for (let i=0; i<diff; i++) {
+      score.points.push(0)
     }
-    res.send(response)
+    score.points.push(points)
+    score.save()    
+    res.sendStatus(201)
   } catch (error) {
     res.status(400).send(error)
   }
@@ -104,7 +92,8 @@ router.delete('/tasks/:id', auth, async (req, res) => {
   }
 })
 
-async function calculatePoints(username, nr) {
+async function calculatePoints(username, nr, isCorrect) {
+  if (!isCorrect) return 0
 
   // TODO Fancy punkte algorithmus (fibonacci ?)
   const points = [21, 13, 8, 5, 3]
@@ -112,7 +101,7 @@ async function calculatePoints(username, nr) {
   const result = await Score.find({ "username": { "$ne": username } })
   
   result.forEach(element => {
-    if (element.points.length == nr) {
+    if (element.points.length == nr && element.points.slice(-1) != 0) {
       index++
     }
   })

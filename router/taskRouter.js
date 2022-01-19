@@ -3,6 +3,7 @@ const Task = require('../model/Task')
 const Score = require('../model/Score')
 const router = express.Router()
 const auth = require('../middleware/auth')
+const { format } = require('date-fns')
 
 router.post('/tasks', async (req, res) => {
   const task = new Task(req.body)
@@ -15,13 +16,25 @@ router.post('/tasks', async (req, res) => {
 })
 
 router.post('/tasks/:nr', auth, async (req, res) => {
+  const response = {
+    status: '',
+    message: ''
+  }
   const nr = req.params.nr
   const solution = req.body.solution
   const username = req.body.username
 
   if (req.user.username != username) {
-    response.status = 'FORBIDDEN'
-    res.status(403).send(response)
+    response.status = 'ERROR'
+    response.message = 'Invalid username'
+    res.send(response)
+    return
+  }
+
+  if (!isAllowed()) {
+    response.status = 'ERROR'
+    response.message = `Submission only allowed between ${process.env.SUBMISSION_START} and ${process.env.SUBMISSION_END}`
+    res.send(response)
     return
   }
 
@@ -36,13 +49,23 @@ router.post('/tasks/:nr', auth, async (req, res) => {
       return
     }
 
+    if (score.points.length >= nr) {
+      response.status = 'ERROR'
+      response.message = 'Already submitted'
+      res.send(response)
+      return
+    }
+
     const diff = (nr - 1) - score.points.length
     for (let i=0; i<diff; i++) {
       score.points.push(0)
     }
     score.points.push(points)
-    score.save()    
-    res.sendStatus(201)
+    score.save()
+
+    response.status = 'OK'
+    response.message = 'Solution submitted successfully'
+    res.status(201).send(response)
   } catch (error) {
     res.status(400).send(error)
   }
@@ -106,6 +129,11 @@ async function calculatePoints(username, nr, isCorrect) {
     }
   })
   return points[index]
+}
+
+function isAllowed() {
+  const hour = parseInt(format(new Date(), 'H'))
+  return hour >= process.env.SUBMISSION_START && hour < process.env.SUBMISSION_END
 }
 
 module.exports = router

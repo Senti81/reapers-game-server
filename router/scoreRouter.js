@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.post('/scores/start', async (req, res) => {
   await Score.deleteMany()
-  const players = await Player.find()
+  const players = await Player.find({ role: 'PLAYER' })
 
   let scores = []
 

@@ -4,8 +4,22 @@ const Player = require('../model/User')
 const auth = require('../middleware/auth')
 const router = express.Router()
 
-router.post('/scores/start', async (req, res) => {
-  await Score.deleteMany()
+router.delete('/scores', auth, async (req, res) => {
+  if (req.user.role !== 'ADMIN') {
+    return res.status(403).send({ msg: 'Forbidden'})    
+  }
+  try {
+      const result = await Score.deleteMany()
+      res.send(result)    
+  } catch (error) {
+    res.status(400).send(error)
+  }
+})
+
+router.post('/scores/start', auth, async (req, res) => {
+  if (req.user.role !== 'ADMIN') {
+    return res.status(403).send({ msg: 'Forbidden'})
+  }
   const players = await Player.find({ role: 'PLAYER' })
 
   let scores = []

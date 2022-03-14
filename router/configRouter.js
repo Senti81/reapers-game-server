@@ -12,6 +12,14 @@ router.post('/config', async (req, res) => {
   }
 })
 
+router.put('/config', async (req, res) => {
+  const config = await Config.findOne()
+  config.day = req.body.day
+  config.hour = req.body.hour
+  await config.save()
+  res.send(config)
+})
+
 router.get('/config', async (req, res) => {
   try {
     const config = await Config.findOne()

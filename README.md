@@ -1,4 +1,4 @@
-# rest-api-template
+# reapers-game-server
 
 ## Project setup
 ```
@@ -20,8 +20,7 @@ POST localhost:3000/users/
 Example:
 ```
 {
-    "name": "Alice",
-    "email": "alice@game.de",
+    "username": "player1",
     "password": "maus1234"
 }
 ```
@@ -29,29 +28,6 @@ Example:
 ```
 POST localhost:3000/scores/start
 ```
-### Show all tasks
-```
-GET localhost:3000/tasks
-```
-
-## USER
-### Submit solution
-```
-POST localhost:3000/tasks/{day}
-```
-Example:
-```
-POST localhost:3000/tasks/1
-{
-    "player": "Alice",
-    "solution": "A"
-}
-```
-### Show points
-```
-GET localhost:3000/scores/
-```
-
 # Misc
 
 ### Create a Heroku remote

@@ -5,6 +5,14 @@
 npm install
 ```
 
+## Create .env
+```
+PORT=3000
+DB_HOST=mongodb://127.0.0.1:27017/reapers-game 
+JWT_SECRET= ... 
+SUBMISSION_START=12
+SUBMISSION_END=17
+
 ### Compiles and hot-reloads for development
 ```
 npm run dev

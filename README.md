@@ -45,7 +45,7 @@ heroku apps:create <name>
 
 ### Deploying code
 ```
-git push heroku master
+git push heroku main
 ```
 
 ### Misc

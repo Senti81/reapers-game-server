@@ -25,7 +25,7 @@ router.post('/scores/start', auth, async (req, res) => {
   let scores = []
 
   players.forEach(player => {
-    scores.push({ username: player.username })
+    scores.push({ username: player.username, displayName: player.name })
   })
 
   Score.insertMany(scores)
@@ -45,6 +45,7 @@ router.get('/scores', async (req, res) => {
     scores.forEach(element => {
       result.push({
         username: element.username,
+        displayName: element.displayName,
         points: element.points.length === 0 ? 0 : element.points.reduce((a, c) => a + c)
       })
     })

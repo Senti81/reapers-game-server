@@ -13,11 +13,6 @@ const scoreSchema = new mongoose.Schema({
     type: Array,
     required: true,
     default: []
-  },
-  retries: {
-    type: Number,
-    required: true,
-    default: 3
   }
 })
 

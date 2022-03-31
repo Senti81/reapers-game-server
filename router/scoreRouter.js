@@ -39,19 +39,11 @@ router.post('/scores/start', auth, async (req, res) => {
 
 router.get('/scores', async (req, res) => {
   try {
-    const scores = await Score.find()
-
-    let result = []
-    scores.forEach(element => {
-      result.push({
-        username: element.username,
-        displayName: element.displayName,
-        points: element.points.length === 0 ? 0 : element.points.reduce((a, c) => a + c)
-      })
-    })
-
-    // Sort by points descending
-    result.sort((a, b) => b.points - a.points)
+    const result = await Score.aggregate([
+      { $project: { _id: 0, displayName: 1, totalPoints: { $sum: '$points' } } },
+      { $sort: { totalPoints: -1}},
+      { $project: { displayName: 1 } }
+    ])
     res.send(result)
   } catch (error) {
     res.status(400).send(error)

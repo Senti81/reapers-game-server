@@ -133,7 +133,7 @@ async function calculatePoints(username, nr, isCorrect) {
 
 function isAllowed() {
   const hour = parseInt(format(new Date(), 'H'))
-  return hour >= process.env.SUBMISSION_START && hour < process.env.SUBMISSION_END
+  return hour >= process.env.SUBMISSION_START && hour <= process.env.SUBMISSION_END
 }
 
 module.exports = router
